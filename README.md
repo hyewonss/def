@@ -66,14 +66,38 @@ Turn N:  [system] + [history_1..N] + [obs: file_A] + ...
 
 ## 핵심 아이디어
 
-| | vLLM Prefix Caching | **TreeHit** |
-|---|---|---|
-| Cache 조건 | 앞부분 토큰 시퀀스 완전 일치 | AST 지문(BLAKE3 해시) 일치 |
-| 대화 기록 누적 시 | Cache miss | Cache hit 유지 |
-| α-rename 적용 | 없음 | 변수명 정규화 → 더 높은 hit rate |
-| 대상 workload | 단일 요청 | Long-horizon agentic task |
-| 실측 hit rate | 4% TTFT 개선 | **36.2% hit rate (목표: 30%+ TTFT 개선)** |
+기존 prefix caching이 중복 코드 블록을 **다른 것**으로 인식할 때, AST-KV는 **재사용 가능한 구조적 단위**로 인식합니다.
+ 
+### ① AST 서브트리 단위 KV 재사용
+ 
+Tree-sitter로 입력 코드를 실시간 파싱 → AST 생성 → 재사용 후보 필터링
+ 
+**재사용 후보 조건:**
+- AST 깊이 ≥ 2
+- 토큰 수 ≥ 8
+- 노드 유형 ∈ `{FunctionDef, ClassDef, ImportStmt, CallExpr, ...}`
+prefix caching은 첫 토큰부터 완전히 일치해야 캐시를 사용하는 반면, AST-KV는 함수·클래스 블록을 색인화하여 같은 블록이 재등장하면 즉시 호출합니다.
+ 
+### ② α-rename 정규화 + BLAKE3 지문
+ 
+변수 이름이 달라도 구조가 같으면 같은 블록으로 인식합니다.
+ 
+```
+입력 코드 → α-rename 정규화 → S-expression 직렬화 → BLAKE3 해시 → 32byte 지문 (캐시 조회 키)
+```
 
+α-rename에서 모든 식별자를 치환하는 `all` 방식과 모듈명·메서드명을 보존하는 `vars_only` 방식을 모두 지원합니다.
+ 
+### ③ RoPE Re-positioning
+ 
+재사용 KV는 원래 위치에서 계산된 값인데, 새 context에서는 다른 위치에 삽입됩니다. 그대로 삽입하면 위치 정보 불일치로 attention이 왜곡되므로, 위치 오프셋 Δ를 이용해 보정합니다.
+ 
+```
+K_new = R(Δ) · K_cached
+ 
+Δ = 새 위치 - 원래 위치
+R(Δ) = RoPE 회전 행렬
+```
 ---
 
 ## 기술 스택
