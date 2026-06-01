@@ -116,35 +116,28 @@ R(Δ) = RoPE 회전 행렬
 
 ---
 
-## 아키텍처
+## 전체 파이프라인
 
 ```
-새 턴 프롬프트 도착
-    │
-    ▼
-텍스트 정제 (cat -n 줄 번호 등 제거)
-    │
-    ▼
-Tree-sitter 증분 파싱 → AST 생성
-    │
-    ▼
-자격 조건 필터링
-    ├── 노드 타입 ∈ {FunctionDef, ClassDef, ImportStmt, CallExpr, AssignStmt}
-    ├── AST 깊이 ≥ 2
-    └── 토큰 수 ≥ 8
-    │
-    ▼
-α-rename 정규화
-    ├── vars_only: 변수·로컬 함수명 → VAR_0, VAR_1 ...  (보수적)
-    └── all:       모든 identifier → VAR_n              (공격적)
-    │
-    ▼
-BLAKE3 지문 생성 → SessionCacheTable 조회
-    ├── Hit:  RoPE re-positioning → KV splice → prefill 생략
-    └── Miss: 정상 prefill 실행 → KV tensor 저장
-    │
-    ▼
-응답 생성
+① 토큰화 + Tree-sitter 증분 파싱 → AST 생성
+         ↓
+② 자격 조건 필터링 (깊이 ≥ 2, 토큰 수 ≥ 8, 허용 노드 유형)
+         ↓
+③ α-rename → BLAKE3 지문 → SessionCacheTable 조회
+         ↓
+   hit / miss
+    ↙        ↘
+④-a 적중(hit)       ④-b 미적중(miss)
+prefill skip +      정상 prefill 후
+RoPE-shifted KV splice  SessionCacheTable 등록
+         ↓
+⑤ Prefill 완료 후 peak KV 측정 (0.85 × 4GB 초과 시 budget merge 발동)
+         ↓
+⑥ Decode 진행 (splice된/병합된 슬롯을 일반 슬롯과 동일하게 어텐션에 노출)
+         ↓
+⑦ 발열 지표 polling (32토큰마다, 임계 초과 시 자격 임계값·예산·정규화 강도 하강)
+         ↓
+⑧ 턴 종료 — LRU eviction (SessionCacheTable을 512MB 이내로 유지)
 ```
 
 ---
