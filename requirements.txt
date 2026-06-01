@@ -1,0 +1,6 @@
+requests
+torch
+transformers
+tree-sitter-python
+blake3
+vllm
