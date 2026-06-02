@@ -211,7 +211,7 @@ python scripts/analyze_hitrate.py \
 
 ## 시연
 
-- self_demo.md 에서 배포한 라이브데모 상세확인 가능!
+- [self_demo.md](./self_demo.md) 에서 배포한 라이브데모 상세확인 가능!
 - 🔗라이브데모: https://def-omega.vercel.app/
 - 🎥시연영상: https://youtu.be/oJYQL1lQmpE
 
