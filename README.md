@@ -231,7 +231,7 @@ GO 기준: hit rate ≥ 25% AND token ratio ≥ 30%
 | obs+action / all | 51.1% | 40.0% | ✅ GO |
 
 - α-rename 순수 기여: **+9.8%p** (exact-match 대비)
-- 권장 수치: obs 단독 / vars_only / 최상위만 → **36.2% hit rate / 36.9% token ratio**
+- 권장 수치: obs 단독 / vars_only / 최상위만 → **32.6% hit rate / 34.5% token ratio**
 
 ### exp2 — TTFT Baseline 비교 (Qwen2.5-Coder-0.5B 기준)
 
