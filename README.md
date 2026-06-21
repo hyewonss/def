@@ -268,44 +268,44 @@ GO 기준: hit rate ≥ 25% AND token ratio ≥ 30%
 def/
 │
 ├── README.md                             ← 프로젝트 개요, 실행 방법, 폴더 구조, 주요 기능, 배포 링크
-├── self_demo.md 
+├── self_demo.md 						  ← 라이브 데모 시연 가이드
 ├── requirements.txt                      ← 재현에 필요한 패키지 목록
 ├── LICENSE
 ├── .gitignore
 │
-├── docs/
-│   ├── Team_Ground_Rule.md
+├── docs/								  ← 연구 기획·문서 자료
+│   ├── Team_Ground_Rule.md		
 │	├── elevator_speech.md
-│	├── project briefs.md
-│	├── related_works.md
+│	├── project briefs.md				  ← 프로젝트 기획안
+│	├── related_works.md				  ← 선행 연구 조사
 │	├── 14_def_FinalReport.pdf	          ← 최종보고서
 │   └── 14_def_발표자료.pdf	              ← 발표자료 
 │
-└── experiments/
-		├── scripts/
-		│   ├── collect_traces_30b_fp8.py 
-		│   ├── vanilla_replay.py
-		│   ├── prefix_caching_replay.py 
-		│   ├── hitrate_astkv.py 
-		│   ├── astkv_fingerprint.py 
-		│   └── visualize/ 
-		│       ├── plot_ttft.py 
-		│       └── plot_ttft_avg_comparison.py 
+└── experiments/						      ← 실험 코드 및 결과물
+		├── scripts/					      ← 실험 실행 스크립트
+		│   ├── collect_traces_30b_fp8.py 	  ← Qwen3-Coder-30B-FP8로 SWE-bench trace 수집하는 코드
+		│   ├── vanilla_replay.py			  ← KV 재사용 없이 TTFT 측정 (baseline)
+		│   ├── prefix_caching_replay.py 	  ← vLLM prefix caching 적용 TTFT 측정
+		│   ├── hitrate_astkv.py 			  ← AST 서브트리 hit rate / token ratio 분석
+		│   ├── astkv_fingerprint.py 		  ← Tree-sitter 파싱 + α-rename + BLAKE3 지문 생성
+		│   └── visualize/ 					  ← 결과 시각화 스크립트
+		│       ├── plot_ttft.py 			  ← turn별 TTFT 추이 그래프 생성
+		│       └── plot_ttft_avg_comparison.py  ← vanilla vs prefix caching 평균 TTFT 비교 그래프 생성
 		│
-		├── data/
+		├── data/								  ← 실험 입력 데이터
 		│		├── swe_bench_25.json             ← 실험에 사용한 SWE-bench 이슈 목록
-		│   └── traces/ 
+		│   └── traces/ 						  ← OpenHands 에이전트 실행 trace((총 50개))
 		│			  └── 30b_direct_run01
 		│           └── trace 총 50개
 		│
-		└── results/ 
-		    ├── 0.5b/
+		└── results/ 								← 실험 결과물
+		    ├── 0.5b/								← Qwen2.5-Coder-0.5B 기준 TTFT 측정 결과 (로그·JSON)
 		    │   ├── prefix_caching_replay.log
 		    │   ├── prefix_caching_results.json
 		    │   ├── vanilla_replay_results.json
 		    │   └── vanilla_replay.log
 		    │
-		    └── figures/ 
+		    └── figures/ 							← TTFT 비교 시각화 그래프 (PNG)
 		        ├── ttft_comparison_0.5b.png
 		        └── ttft_avg_comparison_0.5b.png
 
