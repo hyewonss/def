@@ -278,7 +278,7 @@ def/
 │	├── elevator_speech.md
 │	├── project briefs.md				  ← 프로젝트 기획안
 │	├── related_works.md				  ← 선행 연구 조사
-│	├── 14_def_FinalReport.pdf	          ← 최종보고서
+│	├── 14_def_최종보고서.pdf	              ← 최종보고서
 │   └── 14_def_발표자료.pdf	              ← 발표자료 
 │
 └── experiments/						      ← 실험 코드 및 결과물
